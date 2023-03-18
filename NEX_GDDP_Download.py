@@ -5,6 +5,8 @@
 
 # Libraries
 import csv
+import pandas as pd
+from tqdm import tqdm
 
 # 1. Parse the CSV file
 user_input = 0
@@ -71,10 +73,58 @@ with open(URLfile) as index:
 # Data and Year index: hurs_day_ACCESS-CM2_historical_r1i1p1f1_gn_1950.nc
 
 # Dimensions:
-# 1. Climate Variable
-# 2. Models
-# 3. Years
-# 4. Projection Scenario
+# 1. Models
+# 2. Projection Scenario
+# 3. Climate Variable
+# 4. Years
 
-Test = URL[0].split('/')
-print(Test[8])
+GCM_DB = pd.DataFrame(
+    columns=['Link', 'Model', 'Scenario', 'Variable', 'Years'])
+# Muito demorado!
+cont = 0
+for ilines in URL:
+    Aux = ilines.split('/')
+    if iFlagServer == 0:
+        GCM_DB.loc[len(GCM_DB)] = [ilines, Aux[8],
+                                   Aux[9], Aux[11], Aux[12][-7:-3]]
+    else:
+        GCM_DB.loc[len(GCM_DB)] = [ilines, Aux[4],
+                                   Aux[5], Aux[7], Aux[8][-7:-3]]
+    # -----
+    cont += 1
+    screen = str(cont) + '/' + str(len(URL))
+    print(screen)
+#    for cont in tqdm(range(len(URL)), desc="Loading..."):
+#        pass
+# -----
+
+# GCM_DB.to_pickle('GCM_DB_AWS.pkl')
+GCM_DB.to_pickle('GCM_DB_NEX.pkl')
+
+# LER PICKLE DIRETO
+# Read PKL Database
+
+
+# Get unique values from each column
+UniqueModel = GCM_DB.Model.unique()
+UniqueScen = GCM_DB.Scenario.unique()
+UniqueVar = GCM_DB.Variable.unique()
+UniqueYear = GCM_DB.Years.unique()
+
+# print(UniqueModel[0])
+# print(UniqueScen)
+# print(UniqueVar)
+# print(UniqueYear)
+
+# Aqui eu tenho um DataFrame separado com as dimensões que preciso no banco de dados.
+# Começar as perguntas e iniciar o dowload
+
+# Ex. Perguntas:
+# 1. QUais modelos possuem todos os cenários?
+# 2. Quais modelos possuem todos os anos?
+# 3. Quais modelos possuem todas as variáveis?
+# 4. Quais variáveis possuem todos os cenários?
+# 5. Quais variáveis possuem todos os anos?
+# -----
+# 6. Quero todos os modelos disponíveis com o ano 2100 em três cenários (A, B e C) para Precipitação;
+# Retorna uma lista para download
